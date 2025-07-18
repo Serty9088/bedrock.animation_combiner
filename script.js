@@ -33,6 +33,9 @@ class FilesStack {
     static updateUI() {
         const stackElement = document.getElementById('filesStack');
 
+        const savedConditions = {};
+        for (const file of this.getFiles()) { savedConditions[file.id] = file.molangCondition; }
+
         while (stackElement.firstChild) {
             stackElement.removeChild(stackElement.firstChild);
         }
@@ -46,7 +49,7 @@ class FilesStack {
                     <h3 class="file-card-text">${file.id}</h3>
                     <button class="file-card-close" onClick="FilesStack.deleteFile('${file.id}')" title="Delete">&#10006;</button>
                 </div>
-                <input type="text" class="file-card-input" placeholder="v.is_first_person" id="${this.FileCardInputPrefix + file.id}" />
+                <input type="text" class="file-card-input" placeholder="v.is_first_person" id="${this.FileCardInputPrefix + file.id}" ${savedConditions[file.id] ? 'value="' + savedConditions[file.id] + '"' : ''} />
             `
 
             stackElement.appendChild(node);
@@ -67,7 +70,7 @@ class File {
     get data() { return this.#data }
 
     /** @type {String | undefined} */
-    get molangCondition() { return document.getElementById(FilesStack.FileCardInputPrefix + this.id).value }
+    get molangCondition() { return document.getElementById(FilesStack.FileCardInputPrefix + this.id)?.value }
 
     delete() { FilesStack.deleteFile(this.id); }
 }
