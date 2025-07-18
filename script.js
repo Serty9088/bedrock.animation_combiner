@@ -80,23 +80,22 @@ function combineAnimations(file1, file2) {
         for (let action of Object.keys(file1.data.bones[bone])) {
             const defaultValue = action == 'scale' ? 1 : 0;
 
-            for (let time of Object.keys(file1.data.bones[bone][action])) {
-                let values1 = file1.data.bones[bone][action][time].post || file1.data.bones[bone][action][time];
-                let values2 = (((file2.data.bones[bone] || {})[action] || {})[time] || {}).post || ((file2.data.bones[bone] || {})[action] || {})[time];
-                if (values1 == undefined || values2 == undefined) continue;
+            if (!Array.isArray(file1.data.bones[bone][action])) { 
+                for (let time of Object.keys(file1.data.bones[bone][action])) {
+                    let values1 = file1.data.bones[bone][action][time].post || file1.data.bones[bone][action][time];
+                    let values2 = (((file2.data.bones[bone] || {})[action] || {})[time] || {}).post || ((file2.data.bones[bone] || {})[action] || {})[time];
+                    if (values1 == undefined || values2 == undefined) continue;
 
-                let newValues = new Array(3).fill(0).map((_, index) => {
-                    return `((${file2.molangCondition || '!(' + (file1.molangCondition || '0') + ')'}) ? (${(values2[index] ?? values2)}) : (${file1.molangCondition && file2.molangCondition ? '(' + file1.molangCondition + ') ? ' + (values1[index] ?? values1) + ' : ' + defaultValue : (values1[index] ?? values1)}))`
-                });
+                    let newValues = new Array(3).fill(0).map((_, index) => {
+                        return `((${file2.molangCondition || '!(' + (file1.molangCondition || '0') + ')'}) ? (${(values2[index] ?? values2)}) : (${file1.molangCondition && file2.molangCondition ? '(' + file1.molangCondition + ') ? ' + (values1[index] ?? values1) + ' : ' + defaultValue : (values1[index] ?? values1)}))`
+                    });
 
-                if (!Array.isArray(values1) && !Array.isArray(values2)) newValues = newValues[0];
+                    if (!Array.isArray(values1) && !Array.isArray(values2)) newValues = newValues[0];
 
-                if (file1.data.bones[bone][action][time].post) newAnimation.bones[bone][action][time].post = newValues;
-                else newAnimation.bones[bone][action][time] = newValues;
-            }
-
-            // I was too lazy to do everything properly
-            if (Object.keys(file1.data.bones[bone][action]).length == 0) {
+                    if (file1.data.bones[bone][action][time].post) newAnimation.bones[bone][action][time].post = newValues;
+                    else newAnimation.bones[bone][action][time] = newValues;
+                };
+            } else {
                 let values1 = file1.data.bones[bone][action].post || file1.data.bones[bone][action];
                 let values2 = ((file2.data.bones[bone] || {})[action] || {}).post || (file2.data.bones[bone] || {})[action];
                 if (values1 == undefined || values2 == undefined) continue;
